@@ -1031,7 +1031,7 @@ static esp_err_t status_sensors_handler(httpd_req_t *req)
     p += sprintf(p, "\"light_on_h\":%u,", 8);
     p += sprintf(p, "\"light_off_h\":%u,", 22);
     p += sprintf(p, "\"heat_min\":%.1f,", 24.0);
-    p += sprintf(p, "\"heat_max\":%.1f,", 25.5);
+    p += sprintf(p, "\"heat_max\":%.1f", 25.5);
 
     *p++ = '}';
     *p++ = 0;
