@@ -746,30 +746,31 @@
           fetch(`${baseHost}/status_sensor`)
             .then((response) => response.json())
             .then((data) => {
-              elTemp.innerHTML = data.temp.toFixed(1);
-              elLight.innerHTML = data.light_state
-                ? "<span style='color:#0f0'>WŁ</span>"
-                : "<span style='color:#900'>WYŁ</span>";
-              elHeater.innerHTML = data.heater_state
-                ? "<span style='color:#f00'>WŁ</span>"
-                : "<span style='color:#900'>WYŁ</span>";
+              // elTemp.innerHTML = data.temp.toFixed(1);
+              // elLight.innerHTML = data.light_state
+              //   ? "<span style='color:#0f0'>WŁ</span>"
+              //   : "<span style='color:#900'>WYŁ</span>";
+              // elHeater.innerHTML = data.heater_state
+              //   ? "<span style='color:#f00'>WŁ</span>"
+              //   : "<span style='color:#900'>WYŁ</span>";
 
-              // Zabezpieczenia przed pobraniem nie pełnej wartości
-              if (document.activeElement !== inpLightOn) {
-                inpLightOn.value = data.light_on_h;
-              }
+              // // Zabezpieczenia przed pobraniem nie pełnej wartości
+              // if (document.activeElement !== inpLightOn) {
+              //   inpLightOn.value = data.light_on_h;
+              // }
 
-              if (document.activeElement !== inpLightOff) {
-                inpLightOff.value = data.light_off_h;
-              }
+              // if (document.activeElement !== inpLightOff) {
+              //   inpLightOff.value = data.light_off_h;
+              // }
 
-              if (document.activeElement !== inpHeatMin) {
-                inpHeatMin.value = data.heat_min;
-              }
+              // if (document.activeElement !== inpHeatMin) {
+              //   inpHeatMin.value = data.heat_min;
+              // }
 
-              if (document.activeElement !== inpHeatMax) {
-                inpHeatMax.value = data.heat_max;
-              }
+              // if (document.activeElement !== inpHeatMax) {
+              //   inpHeatMax.value = data.heat_max;
+              // }
+              console.log("Pobrano status sensorów:", data);
             })
             .catch((err) => console.error("Błąd pobierania sensorów:", err));
         }
