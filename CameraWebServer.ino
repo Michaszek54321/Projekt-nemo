@@ -1,4 +1,3 @@
-#include <SharpIR.h>
 #include "esp_camera.h"
 #include <WiFi.h>
 #include <OneWire.h>
@@ -50,7 +49,10 @@ const int oneWireBus = 2;
 OneWire oneWire(oneWireBus);
 DallasTemperature sensors (&oneWire);
 
-SharpIR splawik(1080, 13);
+#define sensor 13;
+//int distance_cm;
+//SharpIR splawik(1080, 13);
+//SharpIR splawik = SharpIR(SharpIR::GP2Y0A21YK0F, 13);
 
 void setup() {
   Serial.begin(115200);
@@ -152,13 +154,10 @@ void setup() {
 
 void loop() {
   // Do nothing. Everything is done in another task by the web server
-  // for (int i = 0; i <= 100; i++){
-  //   delay(3000);
-  //   updateSensors(i * 2, i % 2, (i % 2) - 1);
-  // }
-  //while True{
-  float distance_cm = splawik.getDistance();
-
+  
+  // distance_cm = splawik.getDistance();
+  float volts = analogRead(sensor) * 0.0008056640625; // value from sensor * (3.3/4096)
+  int distance_cm = 29.988 * pow( volts, -1.173);
 
   sensors.requestTemperatures();
   float temperatureC = sensors.getTempCByIndex(0);
@@ -166,6 +165,5 @@ void loop() {
   Serial.println(distance_cm);
   updateSensors(temperatureC, 1, 0);
   delay(2000);
-  //}
   
 }
