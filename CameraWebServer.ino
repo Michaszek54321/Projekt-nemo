@@ -49,7 +49,9 @@ const int oneWireBus = 2;
 OneWire oneWire(oneWireBus);
 DallasTemperature sensors (&oneWire);
 
-#define sensor 13;
+//proby czujnika odleglosci
+
+//#define sensor 13
 //int distance_cm;
 //SharpIR splawik(1080, 13);
 //SharpIR splawik = SharpIR(SharpIR::GP2Y0A21YK0F, 13);
@@ -155,14 +157,18 @@ void setup() {
 void loop() {
   // Do nothing. Everything is done in another task by the web server
   
-  // distance_cm = splawik.getDistance();
-  float volts = analogRead(sensor) * 0.0008056640625; // value from sensor * (3.3/4096)
-  int distance_cm = 29.988 * pow( volts, -1.173);
+  //proby czujnika odleglosci
 
+  // distance_cm = splawik.getDistance();
+  // float volts = analogRead(sensor) * 0.0008056640625; // value from sensor * (3.3/4096)
+  // int distance_cm = 29.988 * pow( volts, -1.173);
+  // Serial.println(volts);
+  // Serial.println(distance_cm);
+
+  //czujnik temperatury
   sensors.requestTemperatures();
   float temperatureC = sensors.getTempCByIndex(0);
   Serial.println(temperatureC);
-  Serial.println(distance_cm);
   updateSensors(temperatureC, 1, 0);
   delay(2000);
   
