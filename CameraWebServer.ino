@@ -39,7 +39,7 @@ const char* ssid = "T-Mobile_Swiatlowod_3938";
 const char* password = "00689644583091587728";
 
 void startCameraServer();
-void updateSensors();
+void updateSensors(float temp, int light_state, int heater_state);
 void setupLedFlash(int pin);
 
 void setup() {
@@ -139,7 +139,7 @@ void setup() {
 
 void loop() {
   // Do nothing. Everything is done in another task by the web server
-  for (i = 0; i <= 100; i++){
+  for (int i = 0; i <= 100; i++){
     updateSensors(i * 2, i % 2, (i % 2) - 1);
   }
   
