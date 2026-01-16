@@ -1,5 +1,7 @@
 #include "esp_camera.h"
 #include <WiFi.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 //
 // WARNING!!! PSRAM IC required for UXGA resolution and high JPEG quality
@@ -41,6 +43,10 @@ const char* password = "00689644583091587728";
 void startCameraServer();
 void updateSensors(float temp, int light_state, int heater_state);
 void setupLedFlash(int pin);
+
+const int oneWireBus = 2;
+OneWire oneWire(oneWireBus);
+DallasTemperature sensors (&oneWire);
 
 void setup() {
   Serial.begin(115200);
@@ -139,10 +145,13 @@ void setup() {
 
 void loop() {
   // Do nothing. Everything is done in another task by the web server
-  for (int i = 0; i <= 100; i++){
-    delay(3000);
-    updateSensors(i * 2, i % 2, (i % 2) - 1);
-  }
+  // for (int i = 0; i <= 100; i++){
+  //   delay(3000);
+  //   updateSensors(i * 2, i % 2, (i % 2) - 1);
+  // }
+  sensors.requestTemperatures();
+  float temperatureC = sensors.getTempCByIndex(0);
+  updateSensors(temperatureC, 1, 0);
   
   delay(4000);
 }
