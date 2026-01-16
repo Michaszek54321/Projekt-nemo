@@ -52,6 +52,7 @@ void setup() {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
+  sensors.begin();
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -149,9 +150,12 @@ void loop() {
   //   delay(3000);
   //   updateSensors(i * 2, i % 2, (i % 2) - 1);
   // }
+  //while True{
   sensors.requestTemperatures();
   float temperatureC = sensors.getTempCByIndex(0);
+  Serial.print(temperatureC);
   updateSensors(temperatureC, 1, 0);
+  delay(2000);
+  //}
   
-  delay(4000);
 }
