@@ -1296,7 +1296,7 @@ void startCameraServer()
 #endif
     };
 
-    httpd_uri_t status_sensor_uri = {
+    httpd_uri_t save_sensor_uri = {
         .uri = "/save_sensor",
         .method = HTTP_GET,
         .handler = save_sensor_handler,
@@ -1451,6 +1451,7 @@ void startCameraServer()
 
         // Nemo endpoints
         httpd_register_uri_handler(camera_httpd, &status_sensor_uri);
+        httpd_register_uri_handler(camera_httpd, &save_sensor_uri);
     }
 
     config.server_port += 1;
