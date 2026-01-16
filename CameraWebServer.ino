@@ -1,7 +1,9 @@
+#include <SharpIR.h>
 #include "esp_camera.h"
 #include <WiFi.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+//#include <SharpIR.h>
 
 //
 // WARNING!!! PSRAM IC required for UXGA resolution and high JPEG quality
@@ -48,11 +50,15 @@ const int oneWireBus = 2;
 OneWire oneWire(oneWireBus);
 DallasTemperature sensors (&oneWire);
 
+SharpIR splawik(1080, 13);
+
 void setup() {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
   sensors.begin();
+  //SharpIR splawik = SharpIR(13, 1080);
+
 
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
@@ -151,9 +157,13 @@ void loop() {
   //   updateSensors(i * 2, i % 2, (i % 2) - 1);
   // }
   //while True{
+  float distance_cm = splawik.getDistance();
+
+
   sensors.requestTemperatures();
   float temperatureC = sensors.getTempCByIndex(0);
-  Serial.print(temperatureC);
+  Serial.println(temperatureC);
+  Serial.println(distance_cm);
   updateSensors(temperatureC, 1, 0);
   delay(2000);
   //}
