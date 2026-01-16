@@ -20,6 +20,12 @@
 #include "sdkconfig.h"
 #include "camera_index.h"
 
+float global_temp = 0.0;
+int global_light_state = 0;
+int global_heater_state = 0;
+
+// TODO: dodać zmienne dla pozostałych parametrów
+
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
 #endif
@@ -1025,9 +1031,9 @@ static esp_err_t status_sensors_handler(httpd_req_t *req)
     char *p = json_response;
     *p++ = '{';
 
-    p += sprintf(p, "\"temp\":%.1f,", 29.2);
-    p += sprintf(p, "\"light_state\":%u,", 1); // true
-    p += sprintf(p, "\"heater_state\":%u,", 0); // false
+    p += sprintf(p, "\"temp\":%.1f,", global_temp);
+    p += sprintf(p, "\"light_state\":%u,", global_light_state);
+    p += sprintf(p, "\"heater_state\":%u,", global_heater_state);
     p += sprintf(p, "\"light_on_h\":%u,", 8);
     p += sprintf(p, "\"light_off_h\":%u,", 22);
     p += sprintf(p, "\"heat_min\":%.1f,", 24.0);
@@ -1471,4 +1477,10 @@ void setupLedFlash(int pin)
     #else
     log_i("LED flash is disabled -> CONFIG_LED_ILLUMINATOR_ENABLED = 0");
     #endif
+}
+
+void updateSensors(float temp, int light_state, int heater_state){
+    global_temp = temp;
+    global_light_state = light_state;
+    global_heater_state = heater_state;
 }
