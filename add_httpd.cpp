@@ -1018,6 +1018,62 @@ static esp_err_t status_handler(httpd_req_t *req)
     return httpd_resp_send(req, json_response, strlen(json_response));
 }
 
+static esp_err_t status_sensors_handler(httpd_req_t *req)
+{
+    static char json_response[1024];
+
+    char *p = json_response;
+    *p++ = '{';
+
+    p += sprintf(p, "\"temp\":%.1f,", 29.2);
+    p += sprintf(p, "\"light_state\":%u,", 1); // true
+    p += sprintf(p, "\"heater_state\":%u,", 0); // false
+    p += sprintf(p, "\"light_on_h\":%u,", 8);
+    p += sprintf(p, "\"light_off_h\":%u,", 22);
+    p += sprintf(p, "\"heat_min\":%.1f,", 24.0);
+    p += sprintf(p, "\"heat_max\":%.1f,", 25.5);
+
+    *p++ = '}';
+    *p++ = 0;
+
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    return httpd_resp_send(req, json_response, strlen(json_response));
+}
+
+static esp_err_t save_sensor_handler(httpd_req_t *req)
+{
+    char query[256];
+
+    char l_on[16];
+    char l_off[16];
+    char h_min[16];
+    char h_max[16];
+
+    if (httpd_req_get_url_query_str(req, query, sizeof(query)) != ESP_OK) {
+        httpd_resp_send_404(req);
+        return ESP_FAIL;
+    }
+
+    httpd_query_key_value(query, "l_on", l_on, sizeof(l_on));
+    httpd_query_key_value(query, "l_off", l_off, sizeof(l_off));
+    httpd_query_key_value(query, "h_min", h_min, sizeof(h_min));
+    httpd_query_key_value(query, "h_max", h_max, sizeof(h_max));
+
+    int light_on  = atoi(l_on);
+    int light_off = atoi(l_off);
+    float heat_min = atof(h_min);
+    float heat_max = atof(h_max);
+
+    // LOG
+    printf("l_on=%d\n", light_on);
+    printf("l_off=%d\n", light_off);
+    printf("h_min=%.2f\n", heat_min);
+    printf("h_max=%.2f\n", heat_max);
+
+    return httpd_resp_sendstr(req, "OK");
+}
+
 static esp_err_t xclk_handler(httpd_req_t *req)
 {
     char *buf = NULL;
@@ -1233,6 +1289,32 @@ void startCameraServer()
 #endif
     };
 
+    httpd_uri_t status_sensor_uri = {
+        .uri = "/status_sensor",
+        .method = HTTP_GET,
+        .handler = status_sensors_handler,
+        .user_ctx = NULL
+#ifdef CONFIG_HTTPD_WS_SUPPORT
+        ,
+        .is_websocket = true,
+        .handle_ws_control_frames = false,
+        .supported_subprotocol = NULL
+#endif
+    };
+
+    httpd_uri_t status_sensor_uri = {
+        .uri = "/save_sensor",
+        .method = HTTP_GET,
+        .handler = save_sensor_handler,
+        .user_ctx = NULL
+#ifdef CONFIG_HTTPD_WS_SUPPORT
+        ,
+        .is_websocket = true,
+        .handle_ws_control_frames = false,
+        .supported_subprotocol = NULL
+#endif
+    };
+
     httpd_uri_t cmd_uri = {
         .uri = "/control",
         .method = HTTP_GET,
@@ -1372,6 +1454,9 @@ void startCameraServer()
         httpd_register_uri_handler(camera_httpd, &greg_uri);
         httpd_register_uri_handler(camera_httpd, &pll_uri);
         httpd_register_uri_handler(camera_httpd, &win_uri);
+
+        // Nemo endpoints
+        httpd_register_uri_handler(camera_httpd, &status_sensor_uri);
     }
 
     config.server_port += 1;
