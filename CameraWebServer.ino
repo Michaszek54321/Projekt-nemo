@@ -140,6 +140,7 @@ void setup() {
 void loop() {
   // Do nothing. Everything is done in another task by the web server
   for (int i = 0; i <= 100; i++){
+    delay(3000);
     updateSensors(i * 2, i % 2, (i % 2) - 1);
   }
   
