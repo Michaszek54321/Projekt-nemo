@@ -25,10 +25,10 @@ int global_light_state = 0;
 int global_heater_state = 0;
 float water_level = 0.0;
 
-int l_on = 8;
-int l_off = 22;
-float h_min = 24.0;
-float h_max = 25.5;
+int light_on = 8;
+int light_off = 22;
+float heat_min = 24.0;
+float heat_max = 25.5;
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
@@ -1089,18 +1089,18 @@ static esp_err_t save_sensor_handler(httpd_req_t *req)
     httpd_query_key_value(query, "h_min", h_min, sizeof(h_min));
     httpd_query_key_value(query, "h_max", h_max, sizeof(h_max));
 
-    l_on  = atoi(l_on);
-    l_off = atoi(l_off);
-    h_min = atof(h_min);
-    h_max = atof(h_max);
+    light_on  = atoi(l_on);
+    light_off = atoi(l_off);
+    heat_min = atof(h_min);
+    heat_max = atof(h_max);
 
     // LOG
-    printf("l_on=%d\n", l_on);
-    printf("l_off=%d\n", l_off);
-    printf("h_min=%.2f\n", h_min);
-    printf("h_max=%.2f\n", h_max);
+    printf("l_on=%d\n", light_on);
+    printf("l_off=%d\n", light_off);
+    printf("h_min=%.2f\n", heat_min);
+    printf("h_max=%.2f\n", heat_max);
 
-    set_params(l_on, l_off, h_min, h_max);
+    set_params(light_on, light_off, heat_min, heat_max);
 
     return httpd_resp_sendstr(req, "OK");
 }
