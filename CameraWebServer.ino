@@ -112,12 +112,12 @@ void check_temps(float current_temp){
   Serial.println(g_heat_max);
   if(current_temp < g_heat_min){
     //wlacz grzalke
-    digitalWrite(przekaznik_grzalka, HIGH);
+    digitalWrite(przekaznik_grzalka, LOW);
     delay(100);
   }
   if(current_temp > g_heat_max){
     //wylacz grzalke
-    digitalWrite(przekaznik_grzalka, LOW);
+    digitalWrite(przekaznik_grzalka, HIGH);
     delay(100);
   }
 }
@@ -128,6 +128,7 @@ void setup() {
   Serial.println();
   sensors.begin();
   pinMode(przekaznik_grzalka, OUTPUT);
+  digitalWrite(przekaznik_grzalka, HIGH); //wylacz grzałkę na start
   // SharpIR splawik = SharpIR(13, 1080);
   // pinMode(czujnik_IR, INPUT);
 
