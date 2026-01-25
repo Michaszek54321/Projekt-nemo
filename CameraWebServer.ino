@@ -61,11 +61,19 @@ int distance_cm;
 #define przekaznik_grzalka 14
 
 // zmienne grzałki i oświetlenia
-char l_on[16];
-char l_off[16];
-char h_min[16];
-char h_max[16];
+int g_light_on = 0;
+int g_light_off = 0;
+float g_heat_min = 0.0;
+float g_heat_max = 0.0;
 
+void set_params(int l_on, int l_off, float h_min, float h_max) {
+  g_light_on = l_on;
+  g_light_off = l_off;
+  g_heat_min = h_min;
+  g_heat_max = h_max;
+
+  Serial.println('dddddupa')
+}
 
 void setup() {
   Serial.begin(115200);
@@ -197,8 +205,10 @@ void loop() {
   updateSensors(temperatureC, 1, 0);
 
 
-  String l_off_str = Serial.readStringUntil('\n');
-  Serial.println(l_off_str);
+  Serial.println(g_light_on);
+  Serial.println(g_light_off);
+  Serial.println(g_heat_min);
+  Serial.println(g_heat_max);
   // proba grzałki
   // digitalWrite(przekaznik_grzalka, HIGH); //włącz grzałkę
   // delay(200);

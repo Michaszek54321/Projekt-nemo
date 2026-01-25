@@ -1065,6 +1065,8 @@ static esp_err_t check_water_lvl_handler(httpd_req_t *req){
     return httpd_resp_sendstr(req, json_response);
 }
 
+void set_params(int l_on, int l_off, float h_min, float h_max);
+
 static esp_err_t save_sensor_handler(httpd_req_t *req)
 {
     char query[256];
@@ -1094,6 +1096,8 @@ static esp_err_t save_sensor_handler(httpd_req_t *req)
     printf("l_off=%d\n", light_off);
     printf("h_min=%.2f\n", heat_min);
     printf("h_max=%.2f\n", heat_max);
+
+    set_params(light_on, light_off, heat_min, heat_max);
 
     return httpd_resp_sendstr(req, "OK");
 }
