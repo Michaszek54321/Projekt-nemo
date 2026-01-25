@@ -69,15 +69,13 @@ const int   daylightOffset_sec = 3600;
 
 // zmienne grzałki i oświetlenia
 
-void printLocalTime(){
+int printLocalTime(){
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
     Serial.println("Failed to obtain time");
-    return;
+    return -1;
   }
-  char timeHour[3];
-  strftime(timeHour,3, "%H", &timeinfo);
-  return timeHour;
+  return timeinfo.tm_hour;
 }
 
 int g_light_on = 0;
@@ -105,7 +103,7 @@ void check_lights(int current_hour){
   }
 }
 
-check_temps(float current_temp){
+void check_temps(float current_temp){
   if(current_temp < g_heat_min){
     //wlacz grzalke
     digitalWrite(przekaznik_grzalka, HIGH);
@@ -249,12 +247,13 @@ void loop() {
   updateSensors(temperatureC, 1, 0);
 
   // zarządzanie oświetleniem
-  Serial.println(printLocalTime());
-  Serial.println(printLocalTime().toInt());
-  check_lights(printLocalTime().toInt());
+  int hour = printLocalTime();
+  Serial.println(hour);
+  check_lights(hour);
 
 
   // proba grzałki
+  check_temps(temperatureC);
   // digitalWrite(przekaznik_grzalka, HIGH); //włącz grzałkę
   // delay(200);
   // digitalWrite(przekaznik_grzalka, LOW); //wyłącz grzałkę
