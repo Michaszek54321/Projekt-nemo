@@ -3,6 +3,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <SharpIR.h>
+#include "time.h"
 
 //
 // WARNING!!! PSRAM IC required for UXGA resolution and high JPEG quality
@@ -60,7 +61,25 @@ int distance_cm;
 
 #define przekaznik_grzalka 14
 
+// czas
+const char* ntpServer = "pool.ntp.org";
+const long  gmtOffset_sec = 3600;
+const int   daylightOffset_sec = 3600;
+
+
 // zmienne grzałki i oświetlenia
+
+void printLocalTime(){
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo)){
+    Serial.println("Failed to obtain time");
+    return;
+  }
+  char timeHour[3];
+  strftime(timeHour,3, "%H", &timeinfo);
+  return timeHour;
+}
+
 int g_light_on = 0;
 int g_light_off = 0;
 float g_heat_min = 0.0;
@@ -72,7 +91,29 @@ void set_params(int l_on, int l_off, float h_min, float h_max) {
   g_heat_min = h_min;
   g_heat_max = h_max;
 
-  Serial.println('dddddupa')
+  Serial.println("dddddupa");
+}
+
+void check_lights(int current_hour){
+  if(current_hour == g_light_on){
+    //wlacz swiatlo
+    digitalWrite(LED_GPIO_NUM, HIGH);
+  }
+  if(current_hour == g_light_off){
+    //wylacz swiatlo
+    digitalWrite(LED_GPIO_NUM, LOW);
+  }
+}
+
+check_temps(float current_temp){
+  if(current_temp < g_heat_min){
+    //wlacz grzalke
+    digitalWrite(przekaznik_grzalka, HIGH);
+  }
+  if(current_temp > g_heat_max){
+    //wylacz grzalke
+    digitalWrite(przekaznik_grzalka, LOW);
+  }
 }
 
 void setup() {
@@ -174,6 +215,8 @@ void setup() {
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
 
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+
   // WiFi.disconnect();
   // if (WiFi.status() != WL_CONNECTED) {
   //   Serial.println("WiFi disconnected hura");
@@ -182,6 +225,7 @@ void setup() {
 }
 
 void loop() {
+
   // Do nothing. Everything is done in another task by the web server
   
   //proby czujnika odleglosci
@@ -204,15 +248,16 @@ void loop() {
   // Serial.println(temperatureC);
   updateSensors(temperatureC, 1, 0);
 
+  // zarządzanie oświetleniem
+  Serial.println(printLocalTime());
+  Serial.println(printLocalTime().toInt());
+  check_lights(printLocalTime().toInt());
 
-  Serial.println(g_light_on);
-  Serial.println(g_light_off);
-  Serial.println(g_heat_min);
-  Serial.println(g_heat_max);
+
   // proba grzałki
   // digitalWrite(przekaznik_grzalka, HIGH); //włącz grzałkę
   // delay(200);
   // digitalWrite(przekaznik_grzalka, LOW); //wyłącz grzałkę
   // delay(200);
-  
+  delay(5000);
 }
