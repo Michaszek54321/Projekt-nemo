@@ -49,19 +49,21 @@ const int oneWireBus = 2;
 OneWire oneWire(oneWireBus);
 DallasTemperature sensors (&oneWire);
 
+
 //proby czujnika odleglosci
 
-//#define sensor 13
-//int distance_cm;
-//SharpIR splawik(1080, 13);
-//SharpIR splawik = SharpIR(SharpIR::GP2Y0A21YK0F, 13);
+#define czujnik_IR 13
+int distance_cm;
+// SharpIR splawik(1080, 13);
+SharpIR splawik = SharpIR(SharpIR::GP2Y0A21YK0F, 13);
 
 void setup() {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
   sensors.begin();
-  //SharpIR splawik = SharpIR(13, 1080);
+  // SharpIR splawik = SharpIR(13, 1080);
+  // pinMode(czujnik_IR, INPUT);
 
 
   camera_config_t config;
@@ -152,6 +154,12 @@ void setup() {
   Serial.print("Camera Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
+
+  WiFi.end();
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("WiFi disconnected hura");
+  }
+
 }
 
 void loop() {
@@ -159,17 +167,25 @@ void loop() {
   
   //proby czujnika odleglosci
 
-  // distance_cm = splawik.getDistance();
   // float volts = analogRead(sensor) * 0.0008056640625; // value from sensor * (3.3/4096)
   // int distance_cm = 29.988 * pow( volts, -1.173);
   // Serial.println(volts);
   // Serial.println(distance_cm);
 
   //czujnik temperatury
+  
+
+
   sensors.requestTemperatures();
   float temperatureC = sensors.getTempCByIndex(0);
   Serial.println(temperatureC);
   updateSensors(temperatureC, 1, 0);
+
+  //proby czujnika odleglosci
+  // distance_cm = map(analogRead(czujnik_IR), 0, 4095, 80, 10);
+  distance_cm = splawik.getDistance();
+  Serial.print("Distance (cm): ");
+  Serial.println(distance_cm);
   delay(2000);
   
 }
