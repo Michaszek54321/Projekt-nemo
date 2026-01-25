@@ -63,7 +63,7 @@ void setup() {
   Serial.println();
   sensors.begin();
   // SharpIR splawik = SharpIR(13, 1080);
-  pinMode(czujnik_IR, INPUT);
+  // pinMode(czujnik_IR, INPUT);
 
 
   camera_config_t config;
@@ -167,7 +167,7 @@ void loop() {
   
   //proby czujnika odleglosci
 
-  float volts = analogRead(czujnik_IR) * 0.001220703125; // value from sensor * (3.3/4096)
+  float volts = analogRead(czujnik_IR) * (5.0/1023.0); // value from sensor * (3.3/4096)  5/4096 = 0.001220703125
   int distance_cm = 29.988 * pow( volts, -1.173);
 
   Serial.print("Volts: ");
