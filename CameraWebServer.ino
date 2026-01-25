@@ -43,7 +43,9 @@ const char* ssid = "T-Mobile_Swiatlowod_3938";
 const char* password = "00689644583091587728";
 
 void startCameraServer();
-void updateSensors(float temp, int light_state, int heater_state);
+void updateTemp(float temp);
+void updateLightState(int light_state);
+void updateHeaterState(int heater_state);
 void setupLedFlash(int pin);
 void updateWaterLevel(float level);
 
@@ -113,11 +115,13 @@ void check_temps(float current_temp){
   if(current_temp < g_heat_min){
     //wlacz grzalke
     digitalWrite(przekaznik_grzalka, LOW);
+    updateHeaterState(1);
     delay(100);
   }
   if(current_temp > g_heat_max){
     //wylacz grzalke
     digitalWrite(przekaznik_grzalka, HIGH);
+    updateHeaterState(0);
     delay(100);
   }
 }
@@ -253,7 +257,7 @@ void loop() {
   sensors.requestTemperatures();
   float temperatureC = sensors.getTempCByIndex(0);
   // Serial.println(temperatureC);
-  updateSensors(temperatureC, 1, 0);
+  updateTemp(temperatureC);
 
   // zarządzanie oświetleniem
   int hour = printLocalTime();

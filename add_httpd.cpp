@@ -1518,9 +1518,15 @@ void setupLedFlash(int pin)
     #endif
 }
 
-void updateSensors(float temp, int light_state, int heater_state){
+void updateTemp(float temp){
     global_temp = temp;
+}
+
+void updateLightState(int light_state){
     global_light_state = light_state;
+}
+
+void updateHeaterState(int heater_state){
     global_heater_state = heater_state;
 }
 
