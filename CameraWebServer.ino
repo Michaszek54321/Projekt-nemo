@@ -56,13 +56,16 @@ DallasTemperature sensors (&oneWire);
 #define czujnik_IR 13
 int distance_cm;
 // SharpIR splawik(1080, 13);
-// SharpIR splawik = SharpIR(SharpIR::GP2Y0A21YK0F, 13);
+// SharpIR splawik = SharpIR(13, 1080);
+
+#define przekaznik_grzalka 14
 
 void setup() {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
   sensors.begin();
+  pinMode(przekaznik_grzalka, OUTPUT);
   // SharpIR splawik = SharpIR(13, 1080);
   // pinMode(czujnik_IR, INPUT);
 
@@ -140,21 +143,21 @@ void setup() {
   setupLedFlash(LED_GPIO_NUM);
 #endif
 
-  // WiFi.begin(ssid, password);
-  // WiFi.setSleep(false);
+  WiFi.begin(ssid, password);
+  WiFi.setSleep(false);
 
-  // while (WiFi.status() != WL_CONNECTED) {
-  //   delay(500);
-  //   Serial.print(".");
-  // }
-  // Serial.println("");
-  // Serial.println("WiFi connected");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
 
-  // startCameraServer();
+  startCameraServer();
 
-  // Serial.print("Camera Ready! Use 'http://");
-  // Serial.print(WiFi.localIP());
-  // Serial.println("' to connect");
+  Serial.print("Camera Ready! Use 'http://");
+  Serial.print(WiFi.localIP());
+  Serial.println("' to connect");
 
   // WiFi.disconnect();
   // if (WiFi.status() != WL_CONNECTED) {
@@ -168,24 +171,28 @@ void loop() {
   
   //proby czujnika odleglosci
 
-  float volts = analogRead(czujnik_IR) * (5.0/1023.0); // value from sensor * (3.3/4096)  5/4096 = 0.001220703125
-  int distance_cm = 29.988 * pow(volts, -1); // 0.173
+  
+  // float volts = analogRead(czujnik_IR) * (5.0/1023.0); // value from sensor * (3.3/4096)  5/4096 = 0.001220703125
+  // int distance_cm = 29.988 * pow(volts, -1); // 0.173
+  // distance_cm = splawik.getDistance();
 
-  Serial.print("Volts: ");
-  Serial.println(volts);
-  Serial.print("Distance (cm): ");
-  Serial.println(distance_cm);
+  // distance_cm = map(analogRead(czujnik_IR), 0, 4095, 80, 10);
+  // Serial.print("Volts: ");
+  // Serial.println(volts);
+  // Serial.print("Distance (cm): ");
+  // Serial.println(distance_cm);
 
   //czujnik temperatury
-
+  
   sensors.requestTemperatures();
   float temperatureC = sensors.getTempCByIndex(0);
   Serial.println(temperatureC);
-  // updateSensors(temperatureC, 1, 0);
+  updateSensors(temperatureC, 1, 0);
 
-  //proby czujnika odleglosci
-  // distance_cm = map(analogRead(czujnik_IR), 0, 4095, 80, 10);
-  // distance_cm = splawik.getDistance();
+  // proba grzałki
+  digitalWrite(przekaznik_grzalka, HIGH); //włącz grzałkę
+  delay(200);
+  digitalWrite(przekaznik_grzalka, LOW); //wyłącz grzałkę
   delay(200);
   
 }
