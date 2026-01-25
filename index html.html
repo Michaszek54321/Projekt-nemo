@@ -446,9 +446,7 @@
           });
         const view = document.getElementById("stream");
         const viewContainer = document.getElementById("stream-container");
-        const stillButton = document.getElementById("get-still");
         const streamButton = document.getElementById("toggle-stream");
-        const closeButton = document.getElementById("close-stream");
 
         const notification = document.getElementById("notification");
 
@@ -462,13 +460,7 @@
           notification.style.display = "none";
           streamButton.innerHTML = "Stop Stream";
         };
-        stillButton.onclick = () => {
-          stopStream();
-          view.src = `${baseHost}/capture?_cb=${Date.now()}`;
-        };
-        closeButton.onclick = () => {
-          stopStream();
-        };
+
         streamButton.onclick = () => {
           const streamEnabled = streamButton.innerHTML === "Stop Stream";
           if (streamEnabled) {
