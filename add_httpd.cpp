@@ -23,6 +23,7 @@
 float global_temp = 0.0;
 int global_light_state = 0;
 int global_heater_state = 0;
+float water_level = 0.0
 
 // TODO: dodać zmienne dla pozostałych parametrów
 
@@ -1047,6 +1048,23 @@ static esp_err_t status_sensors_handler(httpd_req_t *req)
     return httpd_resp_send(req, json_response, strlen(json_response));
 }
 
+static esp_err_t check_water_lvl_handler(httpd_req_t *req){
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+    static char json_response[64];
+
+    char *p = json_response;
+    *p++ = '{';
+
+    p += sprintf(p, "\"water_level\":%.1f,", water_level);
+
+    *p++ = '}';
+    *p++ = 0;
+
+    return httpd_resp_sendstr(req, json_response);
+}
+
 static esp_err_t save_sensor_handler(httpd_req_t *req)
 {
     char query[256];
@@ -1315,6 +1333,19 @@ void startCameraServer()
 #endif
     };
 
+    httpd_uri_t check_water_uri = {
+        .uri = "/check_water_lvl",
+        .method = HTTP_GET,
+        .handler = check_water_lvl_handler,
+        .user_ctx = NULL
+#ifdef CONFIG_HTTPD_WS_SUPPORT
+        ,
+        .is_websocket = true,
+        .handle_ws_control_frames = false,
+        .supported_subprotocol = NULL
+#endif
+    };
+
     httpd_uri_t cmd_uri = {
         .uri = "/control",
         .method = HTTP_GET,
@@ -1458,6 +1489,7 @@ void startCameraServer()
         // Nemo endpoints
         httpd_register_uri_handler(camera_httpd, &status_sensor_uri);
         httpd_register_uri_handler(camera_httpd, &save_sensor_uri);
+        httpd_register_uri_handler(camera_httpd, &check_water_uri);
     }
 
     config.server_port += 1;
@@ -1483,4 +1515,8 @@ void updateSensors(float temp, int light_state, int heater_state){
     global_temp = temp;
     global_light_state = light_state;
     global_heater_state = heater_state;
+}
+
+void updateWaterLevel(float level){
+    water_level = level;
 }

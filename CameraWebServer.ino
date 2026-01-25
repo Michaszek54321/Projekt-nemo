@@ -44,6 +44,7 @@ const char* password = "00689644583091587728";
 void startCameraServer();
 void updateSensors(float temp, int light_state, int heater_state);
 void setupLedFlash(int pin);
+void updateWaterLevel(float level);
 
 const int oneWireBus = 2;
 OneWire oneWire(oneWireBus);

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -307,6 +307,14 @@
             </div>
 
             <div class="input-group">
+              <input
+                type="button"
+                id="check_water_lvl"
+                value="Pomiar poziomu wody"
+              />
+              <span id="check_water_lvl_box">0%</span>
+            </div>
+            <div class="input-group">
               <label for="conf-light-on">Światło ON (Godz):</label>
               <input
                 type="number"
@@ -422,7 +430,7 @@
           const query = `${baseHost}/control?var=${el.id}&val=${value}`;
           fetch(query).then((response) => {
             console.log(
-              `request to ${query} finished, status: ${response.status}`
+              `request to ${query} finished, status: ${response.status}`,
             );
           });
         }
@@ -484,6 +492,33 @@
         const inpHeatMin = document.getElementById("conf-heat-min");
         const inpHeatMax = document.getElementById("conf-heat-max");
         const btnSave = document.getElementById("btn-save-custom");
+
+        const checkWaterLvl = document.getElementById("check_water_lvl");
+        const checkWaterLvlBox = document.getElementById("check_water_lvl_box");
+
+        // Endpoint /check_water_lvl
+        // Posiada dane
+        // {                       | Types:
+        //   water_level: 29,    | Number/String
+        // }
+
+        checkWaterLvl.addEventListener("click", async () => {
+          checkWaterLvlBox.innerHTML = "Ładowanie...";
+
+          try {
+            const response = await fetch(`${baseHost}/check_water_lvl`);
+
+            if (!response.ok) {
+              throw new Error(`Błąd serwera: ${response.status}`);
+            }
+
+            const data = await response.json();
+            checkWaterLvlBox.innerHTML = `${data.water_level.toFixed(0)}%`;
+          } catch (error) {
+            console.error(error);
+            checkWaterLvlBox.innerHTML = "Błąd";
+          }
+        });
 
         // Endpoint /status_sensor
         // Posiada dane
