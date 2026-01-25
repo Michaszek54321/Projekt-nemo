@@ -23,7 +23,7 @@
 float global_temp = 0.0;
 int global_light_state = 0;
 int global_heater_state = 0;
-float water_level = 0.0
+float water_level = 0.0;
 
 // TODO: dodać zmienne dla pozostałych parametrów
 
