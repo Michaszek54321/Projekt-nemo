@@ -95,22 +95,30 @@ void set_params(int l_on, int l_off, float h_min, float h_max) {
 void check_lights(int current_hour){
   if(current_hour == g_light_on){
     //wlacz swiatlo
-    digitalWrite(LED_GPIO_NUM, HIGH);
+    digitalWrite(LED_GPIO_NUM, LOW);
   }
   if(current_hour == g_light_off){
     //wylacz swiatlo
-    digitalWrite(LED_GPIO_NUM, LOW);
+    digitalWrite(LED_GPIO_NUM, HIGH);
   }
 }
 
 void check_temps(float current_temp){
+  Serial.print("Current temp: ");
+  Serial.println(current_temp);
+  Serial.print("Heat min: ");
+  Serial.println(g_heat_min);
+  Serial.print("Heat max: ");
+  Serial.println(g_heat_max);
   if(current_temp < g_heat_min){
     //wlacz grzalke
     digitalWrite(przekaznik_grzalka, HIGH);
+    delay(100);
   }
   if(current_temp > g_heat_max){
     //wylacz grzalke
     digitalWrite(przekaznik_grzalka, LOW);
+    delay(100);
   }
 }
 
