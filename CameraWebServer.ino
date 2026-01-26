@@ -94,7 +94,7 @@ float g_heat_max = 0.0;
 
 String g_light_mode = "auto";
 
-void set_light_mode(String light_mode){
+void set_light_mode(char *light_mode){
   g_light_mode = light_mode;
   Serial.print("Light mode set to: ");
   Serial.println(g_light_mode);
@@ -111,31 +111,30 @@ void check_lights(int current_hour){
   if (g_light_mode == "morning"){
     leds[0] = CRGB(255, 255, 255);
     FastLED.show();
+    updateLightState(1);
   }
   else if (g_light_mode == "evening"){
     leds[0] = CRGB(255, 140, 0);
     FastLED.show();
+    updateLightState(1);
   }
   else if (g_light_mode == "night"){
     leds[0] = CRGB(0, 0, 255);
     FastLED.show();
+    updateLightState(1);
   }
   else if (g_light_mode == "auto"){
-    Serial.print("Current hour: ");
-    Serial.println(current_hour);
-    Serial.print("Light ON hour: ");
-    Serial.println(g_light_on);
-    Serial.print("Light OFF hour: ");
-    Serial.println(g_light_off);
     if(current_hour >= g_light_on){
       //wlacz swiatlo
       leds[0] = CRGB(255, 255, 255);
       FastLED.show();
+      updateLightState(1);
     }
     else if(current_hour >= g_light_off || current_hour < g_light_on){
       //wylacz swiatlo
       leds[0] = CRGB(0, 0, 0);
       FastLED.show();
+      updateLightState(0);
     }
   }
 }
@@ -307,5 +306,5 @@ void loop() {
   // delay(200);
   // digitalWrite(przekaznik_grzalka, LOW); //wyłącz grzałkę
   // delay(200);
-  delay(5000);
+  delay(2000);
 }
