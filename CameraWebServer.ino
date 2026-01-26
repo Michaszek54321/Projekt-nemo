@@ -112,18 +112,23 @@ void check_lights(int current_hour){
     leds[0] = CRGB(255, 255, 255);
     FastLED.show();
   }
-  if (g_light_mode == "evening"){
+  else if (g_light_mode == "evening"){
     leds[0] = CRGB(255, 140, 0);
     FastLED.show();
   }
-
-  if(current_hour == g_light_on){
-    //wlacz swiatlo
-    digitalWrite(LED_GPIO_NUM, LOW);
+  else if (g_light_mode == "night"){
+    leds[0] = CRGB(0, 0, 255);
+    FastLED.show();
   }
-  if(current_hour == g_light_off){
-    //wylacz swiatlo
-    digitalWrite(LED_GPIO_NUM, HIGH);
+  else if (g_light_mode == "auto"){
+    if(current_hour == g_light_on){
+      //wlacz swiatlo
+      digitalWrite(LED_GPIO_NUM, LOW);
+    }
+    if(current_hour == g_light_off){
+      //wylacz swiatlo
+      digitalWrite(LED_GPIO_NUM, HIGH);
+    }
   }
 }
 
