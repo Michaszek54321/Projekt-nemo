@@ -121,6 +121,12 @@ void check_lights(int current_hour){
     FastLED.show();
   }
   else if (g_light_mode == "auto"){
+    Serial.print("Current hour: ");
+    Serial.println(current_hour);
+    Serial.print("Light ON hour: ");
+    Serial.println(g_light_on);
+    Serial.print("Light OFF hour: ");
+    Serial.println(g_light_off);
     if(current_hour >= g_light_on){
       //wlacz swiatlo
       leds[0] = CRGB(255, 255, 255);
