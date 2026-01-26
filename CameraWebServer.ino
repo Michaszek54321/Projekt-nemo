@@ -4,6 +4,7 @@
 #include <DallasTemperature.h>
 #include <SharpIR.h>
 #include "time.h"
+#include <FastLED.h>
 
 //
 // WARNING!!! PSRAM IC required for UXGA resolution and high JPEG quality
@@ -49,10 +50,15 @@ void updateHeaterState(int heater_state);
 void setupLedFlash(int pin);
 void updateWaterLevel(float level);
 
+// oswietlenie
+#define LED_PIN     15
+#define NUM_LEDS    1
+
+
+// temperatura
 const int oneWireBus = 2;
 OneWire oneWire(oneWireBus);
 DallasTemperature sensors (&oneWire);
-
 
 //proby czujnika odleglosci
 
@@ -130,11 +136,18 @@ void setup() {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
+  // start czujnika temperatury
   sensors.begin();
+
+  // ustawienia przekaźnika grzałki
   pinMode(przekaznik_grzalka, OUTPUT);
   digitalWrite(przekaznik_grzalka, HIGH); //wylacz grzałkę na start
   // SharpIR splawik = SharpIR(13, 1080);
   // pinMode(czujnik_IR, INPUT);
+
+  // ustawienia oświetlenia
+  FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
+
 
 
   camera_config_t config;
@@ -261,11 +274,13 @@ void loop() {
 
   // zarządzanie oświetleniem
   int hour = printLocalTime();
+  leds[0] = CRGB(255, 0, 0);
+  FastLED.show();
   Serial.println(hour);
   check_lights(hour);
 
 
-  // proba grzałki
+  // zarządzanie grzałką
   check_temps(temperatureC);
   // digitalWrite(przekaznik_grzalka, HIGH); //włącz grzałkę
   // delay(200);
