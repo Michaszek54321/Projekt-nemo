@@ -348,8 +348,8 @@
             </p>
             <div class="btn-group">
               <button id="btn-morning" class="light-btn">Rano</button>
-              <button id="btn-noon" class="light-btn">Południe</button>
               <button id="btn-evening" class="light-btn">Wieczór</button>
+              <button id="btn-night" class="light-btn">Noc</button>
               <button id="btn-auto" class="auto-btn">Auto</button>
             </div>
             <div class="input-group">
@@ -514,7 +514,7 @@
 
         // NEMO CUSTOM JS
         const btnMorning = document.getElementById("btn-morning");
-        const btnNoon = document.getElementById("btn-noon");
+        const btnNight = document.getElementById("btn-night");
         const btnEvening = document.getElementById("btn-evening");
         const btnAuto = document.getElementById("btn-auto");
 
@@ -533,7 +533,7 @@
 
         // Endpoint /set_light_mode?mode=param
         // {
-        //  param: morning | noon | evening | auto <- String Types
+        //  param: morning | evening | night |  auto <- String Types
         // }
 
         const setLightMode = (mode) => {
@@ -549,7 +549,7 @@
         };
 
         btnMorning.onclick = () => setLightMode("morning");
-        btnNoon.onclick = () => setLightMode("noon");
+        btnNight.onclick = () => setLightMode("night");
         btnEvening.onclick = () => setLightMode("evening");
         btnAuto.onclick = () => setLightMode("auto");
 
