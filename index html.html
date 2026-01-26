@@ -589,6 +589,19 @@
         //   heat_max: 25.5,       | Number (defaultowo np. 25.5, o której wyłączy się grzałka)
         // }
 
+        let isEditing = false;
+
+        const inputs = [inpLightOn, inpLightOff, inpHeatMin, inpHeatMax];
+
+        inputs.forEach((input) => {
+          input.addEventListener("focus", () => {
+            isEditing = true;
+          });
+          input.addEventListener("blur", () => {
+            isEditing = false;
+          });
+        });
+
         function fetchSensorStatus() {
           fetch(`${baseHost}/status_sensor`)
             .then((response) => response.json())
@@ -601,20 +614,10 @@
                 ? "<span style='color:#0f0'>WŁ</span>"
                 : "<span style='color:#900'>WYŁ</span>";
 
-              // Zabezpieczenia przed pobraniem nie pełnej wartości
-              if (document.activeElement !== inpLightOn) {
+              if (!isEditing) {
                 inpLightOn.value = data.light_on_h;
-              }
-
-              if (document.activeElement !== inpLightOff) {
                 inpLightOff.value = data.light_off_h;
-              }
-
-              if (document.activeElement !== inpHeatMin) {
                 inpHeatMin.value = data.heat_min;
-              }
-
-              if (document.activeElement !== inpHeatMax) {
                 inpHeatMax.value = data.heat_max;
               }
             })
