@@ -633,13 +633,17 @@
 
         btnSave.onclick = () => {
           const query = `${baseHost}/save_sensor?l_on=${inpLightOn.value}&l_off=${inpLightOff.value}&h_min=${inpHeatMin.value}&h_max=${inpHeatMax.value}`;
-          fetch(query).then((response) => {
-            if (response.status === 200) {
-              alert("Ustawienia zapisane!");
-            } else {
-              alert("Błąd zapisu!");
-            }
-          });
+          fetch(query)
+            .then((response) => {
+              if (response.status === 200) {
+                alert("Ustawienia zapisane!");
+              } else {
+                alert("Błąd zapisu!");
+              }
+            })
+            .finally(() => {
+              fetchSensorStatus();
+            });
         };
 
         fetchSensorStatus();
