@@ -91,6 +91,12 @@ int g_light_off = 0;
 float g_heat_min = 0.0;
 float g_heat_max = 0.0;
 
+char *g_light_mode = " ";
+
+void set_light_mode(char *light_mode){
+  g_light_mode = light_mode;
+}
+
 void set_params(int l_on, int l_off, float h_min, float h_max) {
   g_light_on = l_on;
   g_light_off = l_off;

@@ -1068,6 +1068,29 @@ static esp_err_t check_water_lvl_handler(httpd_req_t *req){
     return httpd_resp_sendstr(req, json_response);
 }
 
+void set_light_mode(char *light_mode);
+
+static esp_err_t led_light_mode_handler(httpd_req_t *req){
+    char *buf = NULL;
+    char mode[16];
+
+    if (parse_get(req, &buf) != ESP_OK) {
+        return ESP_FAIL;
+    }
+    if (httpd_query_key_value(buf, "mode", mode, sizeof(mode)) != ESP_OK) {
+        free(buf);
+        httpd_resp_send_404(req);
+        return ESP_FAIL;
+    }
+    free(buf);
+
+
+    set_light_mode(mode);
+
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+    return httpd_resp_send(req, NULL, 0);
+}
+
 void set_params(int l_on, int l_off, float h_min, float h_max);
 
 static esp_err_t save_sensor_handler(httpd_req_t *req)
@@ -1352,6 +1375,19 @@ void startCameraServer()
         .supported_subprotocol = NULL
 #endif
     };
+    
+    httpd_uri_t led_light_mode_uri = {
+        .uri = "/set_light_mode",
+        .method = HTTP_GET,
+        .handler = led_light_mode_handler,
+        .user_ctx = NULL
+#ifdef CONFIG_HTTPD_WS_SUPPORT
+        ,
+        .is_websocket = true,
+        .handle_ws_control_frames = false,
+        .supported_subprotocol = NULL
+#endif
+    };
 
     httpd_uri_t cmd_uri = {
         .uri = "/control",
@@ -1497,6 +1533,7 @@ void startCameraServer()
         httpd_register_uri_handler(camera_httpd, &status_sensor_uri);
         httpd_register_uri_handler(camera_httpd, &save_sensor_uri);
         httpd_register_uri_handler(camera_httpd, &check_water_uri);
+        httpd_register_uri_handler(camera_httpd, &led_light_mode_uri);
     }
 
     config.server_port += 1;

@@ -134,6 +134,36 @@
         position: relative;
       }
 
+      .btn-group {
+        display: flex;
+        gap: 5px;
+        margin: 10px 0;
+      }
+
+      button,
+      .button {
+        display: block;
+        border: 0;
+        line-height: 28px;
+        cursor: pointer;
+        color: #fff;
+        background: #ff3034;
+        border-radius: 5px;
+        font-size: 16px;
+        width: 100%;
+      }
+
+      .light-btn {
+        font-size: 13px;
+        padding: 0 5px;
+        background: #e67e22;
+      }
+
+      .auto-btn {
+        font-size: 13px;
+        background: #27ae60;
+      }
+
       @media (max-width: 1200px) {
         .wrapper {
           width: 50%;
@@ -185,8 +215,9 @@
               <option value="12">SXGA(1280x1024)</option>
               <option value="11">HD(1280x720)</option>
               <option value="10">XGA(1024x768)</option>
-              <option value="9" selected>SVGA(800x600)</option>
-              <option value="8">VGA(640x480)</option>
+              <option value="9">SVGA(800x600)</option>
+              <!--main selection ^ -->
+              <option value="8" selected>VGA(640x480)</option>
               <option value="7">HVGA(480x320)</option>
               <option value="6">CIF(400x296)</option>
               <option value="5">QVGA(320x240)</option>
@@ -305,14 +336,21 @@
             <div style="text-align: center; margin: 5px 0; font-weight: bold">
               Ustawienia Automatyki
             </div>
-
-            <div class="input-group">
-              <input
-                type="button"
-                id="check_water_lvl"
-                value="Pomiar poziomu wody"
-              />
-              <span id="check_water_lvl_box">0%</span>
+            <p style="margin: 20px 0px 0px 10px; font-weight: bold">
+              Pomiar poziomu wody
+            </p>
+            <div class="btn-group">
+              <button class="auto-btn" id="check_water_lvl" />
+              <span id="check_water_lvl_box">Kliknij</span>
+            </div>
+            <p style="margin: 20px 0px 0px 10px; font-weight: bold">
+              Tryb Światła
+            </p>
+            <div class="btn-group">
+              <button id="btn-morning" class="light-btn">Rano</button>
+              <button id="btn-noon" class="light-btn">Południe</button>
+              <button id="btn-evening" class="light-btn">Wieczór</button>
+              <button id="btn-auto" class="auto-btn">Auto</button>
             </div>
             <div class="input-group">
               <label for="conf-light-on">Światło ON (Godz):</label>
@@ -475,6 +513,11 @@
         });
 
         // NEMO CUSTOM JS
+        const btnMorning = document.getElementById("btn-morning");
+        const btnNoon = document.getElementById("btn-noon");
+        const btnEvening = document.getElementById("btn-evening");
+        const btnAuto = document.getElementById("btn-auto");
+
         const elTemp = document.getElementById("live-temp");
         const elLight = document.getElementById("live-light");
         const elHeater = document.getElementById("live-heater");
@@ -487,6 +530,28 @@
 
         const checkWaterLvl = document.getElementById("check_water_lvl");
         const checkWaterLvlBox = document.getElementById("check_water_lvl_box");
+
+        // Endpoint /set_light_mode?mode=param
+        // {
+        //  param: morning | noon | evening | auto <- String Types
+        // }
+
+        const setLightMode = (mode) => {
+          fetch(`${baseHost}/set_light_mode?mode=${mode}`)
+            .then((response) => {
+              if (response.ok) {
+                alert("Zmieniono tryb na: " + mode);
+              } else {
+                console.error("Błąd ustawiania trybu światła");
+              }
+            })
+            .catch((err) => console.error(err));
+        };
+
+        btnMorning.onclick = () => setLightMode("morning");
+        btnNoon.onclick = () => setLightMode("noon");
+        btnEvening.onclick = () => setLightMode("evening");
+        btnAuto.onclick = () => setLightMode("auto");
 
         // Endpoint /check_water_lvl
         // Posiada dane
