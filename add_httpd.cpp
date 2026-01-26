@@ -1068,7 +1068,7 @@ static esp_err_t check_water_lvl_handler(httpd_req_t *req){
     return httpd_resp_sendstr(req, json_response);
 }
 
-void set_light_mode(String light_mode);
+void set_light_mode(char *light_mode);
 
 static esp_err_t led_light_mode_handler(httpd_req_t *req){
     char *buf = NULL;

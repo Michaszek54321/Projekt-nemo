@@ -121,13 +121,15 @@ void check_lights(int current_hour){
     FastLED.show();
   }
   else if (g_light_mode == "auto"){
-    if(current_hour == g_light_on){
+    if(current_hour >= g_light_on){
       //wlacz swiatlo
-      digitalWrite(LED_GPIO_NUM, LOW);
+      leds[0] = CRGB(255, 255, 255);
+      FastLED.show();
     }
-    if(current_hour == g_light_off){
+    else if(current_hour >= g_light_off || current_hour < g_light_on){
       //wylacz swiatlo
-      digitalWrite(LED_GPIO_NUM, HIGH);
+      leds[0] = CRGB(0, 0, 0);
+      FastLED.show();
     }
   }
 }
