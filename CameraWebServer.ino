@@ -92,10 +92,12 @@ int g_light_off = 0;
 float g_heat_min = 0.0;
 float g_heat_max = 0.0;
 
-char *g_light_mode = " ";
+String g_light_mode = "auto";
 
-void set_light_mode(char *light_mode){
+void set_light_mode(String light_mode){
   g_light_mode = light_mode;
+  Serial.print("Light mode set to: ");
+  Serial.println(g_light_mode);
 }
 
 void set_params(int l_on, int l_off, float h_min, float h_max) {
@@ -103,11 +105,18 @@ void set_params(int l_on, int l_off, float h_min, float h_max) {
   g_light_off = l_off;
   g_heat_min = h_min;
   g_heat_max = h_max;
-
-  Serial.println("dddddupa");
 }
 
 void check_lights(int current_hour){
+  if (g_light_mode == "morning"){
+    leds[0] = CRGB(255, 255, 255);
+    FastLED.show();
+  }
+  if (g_light_mode == "evening"){
+    leds[0] = CRGB(255, 140, 0);
+    FastLED.show();
+  }
+
   if(current_hour == g_light_on){
     //wlacz swiatlo
     digitalWrite(LED_GPIO_NUM, LOW);
@@ -119,12 +128,6 @@ void check_lights(int current_hour){
 }
 
 void check_temps(float current_temp){
-  Serial.print("Current temp: ");
-  Serial.println(current_temp);
-  Serial.print("Heat min: ");
-  Serial.println(g_heat_min);
-  Serial.print("Heat max: ");
-  Serial.println(g_heat_max);
   if(current_temp < g_heat_min){
     //wlacz grzalke
     digitalWrite(przekaznik_grzalka, LOW);
@@ -281,9 +284,7 @@ void loop() {
 
   // zarządzanie oświetleniem
   int hour = printLocalTime();
-  leds[0] = CRGB(255, 0, 0);
-  FastLED.show();
-  Serial.println(hour);
+
   check_lights(hour);
 
 
