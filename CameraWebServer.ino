@@ -2,7 +2,7 @@
 #include <WiFi.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <SharpIR.h>
+//#include <SharpIR.h>
 #include "time.h"
 #include <FastLED.h>
 
@@ -25,8 +25,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char* ssid = "T-Mobile_Swiatlowod_3938";
-const char* password = "00689644583091587728";
+const char* ssid = "iPhone (Michał)"; // T-Mobile_Swiatlowod_3938
+const char* password = "lol12345"; // 00689644583091587728
 
 void startCameraServer();
 void updateTemp(float temp);
@@ -72,10 +72,10 @@ int printLocalTime(){
   return timeinfo.tm_hour;
 }
 
-int g_light_on = 0;
-int g_light_off = 0;
-float g_heat_min = 0.0;
-float g_heat_max = 0.0;
+int g_light_on = 8;
+int g_light_off = 22;
+float g_heat_min = 24.0;
+float g_heat_max = 25.5;
 
 String g_light_mode = "auto";
 
@@ -152,7 +152,7 @@ void setup() {
 
   // proby czujnika odleglosci
   // SharpIR splawik = SharpIR(13, 1080);
-  // pinMode(czujnik_IR, INPUT);
+  pinMode(czujnik_IR, INPUT);
 
   // ustawienia oświetlenia
   FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
@@ -250,10 +250,10 @@ void setup() {
 
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
-  // WiFi.disconnect();
-  // if (WiFi.status() != WL_CONNECTED) {
-  //   Serial.println("WiFi disconnected hura");
-  // }
+  WiFi.disconnect(true);
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("WiFi disconnected hura");
+  }
 
 }
 
@@ -264,13 +264,13 @@ void loop() {
   //proby czujnika odleglosci
 
   
-  // float volts = analogRead(czujnik_IR) * (5.0/1023.0); // value from sensor * (3.3/4096)  5/4096 = 0.001220703125
+  float volts = analogRead(czujnik_IR) * (3.3/4096); // value from sensor * (3.3/4096)  5/4096 = 0.001220703125
   // int distance_cm = 29.988 * pow(volts, -1); // 0.173
   // distance_cm = splawik.getDistance();
 
   // distance_cm = map(analogRead(czujnik_IR), 0, 4095, 80, 10);
-  // Serial.print("Volts: ");
-  // Serial.println(volts);
+  Serial.print("Volts: ");
+  Serial.println(volts);
   // Serial.print("Distance (cm): ");
   // Serial.println(distance_cm);
 
@@ -289,5 +289,5 @@ void loop() {
 
   // zarządzanie grzałką
   check_temps(temperatureC);
-  delay(2000);
+  delay(1000);
 }
