@@ -692,6 +692,33 @@
         // Co 1s aktualizuje informacje
         setInterval(fetchSensorStatus, 1000);
 
+        // Chart
+        let myChart;
+        const ctx = document.getElementById("myChart");
+
+        // inicjalizacja charta
+        myChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: [], // godziny z chartdata
+            datasets: [
+              {
+                label:
+                  "Wykres średniej temperatury z danej godziny - ostatnie 24h",
+                data: [], // temperatury z chartdata
+                borderWidth: 2,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: false,
+              },
+            },
+          },
+        });
+
         // endpoint na odczyt danych temperatury
         // {
         //   temp_data: [int]      | Number tablica -> indeksy = godzina, dane = temp z tej godziny
@@ -718,35 +745,8 @@
             });
         }
 
-        // Chart
-        const ctx = document.getElementById("myChart");
-
-        // inicjalizacja charta
-        new Chart(ctx, {
-          type: "line",
-          data: {
-            labels: [], // godziny z chartdata
-            datasets: [
-              {
-                label:
-                  "Wykres średniej temperatury z danej godziny - ostatnie 24h",
-                data: [], // temperatury z chartdata
-                borderWidth: 2,
-              },
-            ],
-          },
-          options: {
-            scales: {
-              y: {
-                beginAtZero: false,
-              },
-            },
-          },
-        });
-
         fetchChartData();
         setInterval(fetchChartData, 1800000); // co 30 minut
-
       });
     </script>
   </body>
