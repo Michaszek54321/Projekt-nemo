@@ -38,8 +38,9 @@ void updateWaterLevel(int level);
 void updateChartData(int data[], size_t incoming_size);
 
 // eeprom
-#define EEPROM_SIZE 24
-int godziny[EEPROM_SIZE];
+#define EEPROM_SIZE 26
+#define godziny_size 24
+int godziny[godziny_size];
 float avg_temp_list[10];
 
 // oswietlenie
@@ -75,8 +76,6 @@ int getHour(){
   return timeinfo.tm_hour;
 }
 
-
-
 // zmienne grzałki i oświetlenia
 int g_light_on = 8;
 int g_light_off = 22;
@@ -96,6 +95,10 @@ void set_params(int l_on, int l_off, float h_min, float h_max) {
   g_light_off = l_off;
   g_heat_min = h_min;
   g_heat_max = h_max;
+
+  EEPROM.write(24, g_light_on);
+  EEPROM.write(25, g_light_off);
+  EEPROM.commit();
 }
 
 void check_lights(int current_hour){
@@ -115,7 +118,7 @@ void check_lights(int current_hour){
     updateLightState(1);
   }
   else if (g_light_mode == "auto"){
-    if(current_hour >= g_light_on){
+    if(current_hour >= g_light_on && current_hour < g_light_off){
       //wlacz swiatlo
       leds[0] = CRGB(255, 255, 255);
       FastLED.show();
@@ -191,7 +194,7 @@ int convert_to_percentage(float volts) {
 
 void check_eeprom(){
   // sprawdz czy w eepromie sa jakies dane, jesli nie to zapelnij zerami
-  int rozmiar_ee = EEPROM.length();
+  int rozmiar_ee = godziny_size;
   for (int i = 0; i < rozmiar_ee; i++) {
     if (EEPROM.read(i) == 255){
       EEPROM.write(i, 0);
@@ -202,7 +205,10 @@ void check_eeprom(){
     Serial.print(": ");
     Serial.println(godziny[i]);
   }
-  updateChartData(godziny, EEPROM_SIZE);
+  updateChartData(godziny, godziny_size);
+
+  g_light_on = EEPROM.read(24);
+  g_light_off = EEPROM.read(25);
 }
 
 int avg_temp(float temps[], int size) {
@@ -221,7 +227,7 @@ void add_eeprom(int hour, int temp){
   EEPROM.write(hour, temp);
   EEPROM.commit();
   godziny[hour] = temp;
-  updateChartData(godziny, EEPROM_SIZE);
+  updateChartData(godziny, godziny_size);
 }
 
 void setup() {
