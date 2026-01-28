@@ -330,5 +330,7 @@ void loop() {
 
   // zarządzanie grzałką
   check_temps(temperatureC);
+
+  sec_since_measure += 1;
   delay(1000);
 }
