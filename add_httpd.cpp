@@ -30,7 +30,7 @@ int light_off = 22;
 float heat_min = 24.0;
 float heat_max = 25.5;
 
-int temp_data[48];
+int temp_data[24];
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
@@ -1039,8 +1039,8 @@ static esp_err_t chart_data_handler(httpd_req_t *req)
 
     httpd_resp_send_chunk(req, "{\"temp_data\":[", -1);
 
-    for (int i = 0; i < 48; i++) {
-        int len = sprintf(part, "%d%s", temp_data[i], (i < 47) ? "," : "");
+    for (int i = 0; i < 24; i++) {
+        int len = sprintf(part, "%d%s", temp_data[i], (i < 23) ? "," : "");
         
         if (httpd_resp_send_chunk(req, part, len) != ESP_OK) {
             return ESP_FAIL; 
@@ -1613,11 +1613,11 @@ void updateWaterLevel(int level){
 }
 
 void updateChartData(int data[], size_t incoming_size) {
-    size_t elements_to_copy = (incoming_size < 48) ? incoming_size : 48;
+    size_t elements_to_copy = (incoming_size < 24) ? incoming_size : 24;
 
     memcpy(temp_data, data, elements_to_copy * sizeof(int));
 
-    if (elements_to_copy < 48) {
-        memset(temp_data + elements_to_copy, 0, (48 - elements_to_copy) * sizeof(int));
+    if (elements_to_copy < 24) {
+        memset(temp_data + elements_to_copy, 0, (24 - elements_to_copy) * sizeof(int));
     }
 }
