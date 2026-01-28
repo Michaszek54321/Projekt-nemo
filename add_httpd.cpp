@@ -1056,14 +1056,14 @@ void updateWaterBool(bool state);
 static esp_err_t check_water_lvl_handler(httpd_req_t *req){
     httpd_resp_set_type(req, "application/json");
     httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    updateWaterBool(true)
+    updateWaterBool(true);
 
     static char json_response[64];
 
     char *p = json_response;
     *p++ = '{';
 
-    p += sprintf(p, "\"water_level\":%.1f,", water_level);
+    p += sprintf(p, "\"water_level\":%.1f", water_level);
 
     *p++ = '}';
     *p++ = 0;
