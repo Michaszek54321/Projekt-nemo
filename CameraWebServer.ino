@@ -49,7 +49,7 @@ DallasTemperature sensors (&oneWire);
 //proby czujnika odleglosci
 
 #define czujnik_IR 13
-int distance_cm;
+int sec_since_measure = 0;
 // SharpIR splawik(1080, 13);
 // SharpIR splawik = SharpIR(13, 1080);
 
@@ -68,13 +68,12 @@ void updateWaterBool(bool state){
 }
 
 // zmienne grzałki i oświetlenia
-int printLocalTime(){
+int getHour(){
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
     Serial.println("Failed to obtain time");
     return -1;
   }
-  Serial.println("Git");
   return timeinfo.tm_hour;
 }
 
@@ -154,7 +153,8 @@ void check_water_level(){
     float volts = analogRead(czujnik_IR) * (3.3/4096);
     Serial.print("Volts: ");
     Serial.println(volts);
-    updateWaterLevel(volts);
+    int level = convert_to_percentage(volts);
+    updateWaterLevel(level);
   }
 
   WiFi.begin(ssid, password);
@@ -165,9 +165,8 @@ void check_water_level(){
   }
   Serial.println("");
   Serial.println("WiFi connected");
-
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 }
-
 
 int convert_to_percentage(float volts) {
   int percentage = 0;
@@ -281,6 +280,12 @@ void setup() {
 #if defined(LED_GPIO_NUM)
   setupLedFlash(LED_GPIO_NUM);
 #endif
+  
+  float volts = analogRead(czujnik_IR) * (3.3/4096);
+  Serial.print("Volts: ");
+  Serial.println(volts);
+  int level = convert_to_percentage(volts);
+  updateWaterLevel(level);
 
   WiFi.begin(ssid, password);
   WiFi.setSleep(false);
@@ -297,60 +302,28 @@ void setup() {
   Serial.print("Camera Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
-
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-
-  WiFi.disconnect(true);
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("WiFi disconnected hura");
-
-    float volts = analogRead(czujnik_IR) * (3.3/4096);
-    Serial.print("Volts: ");
-    Serial.println(volts);
-  }
-  delay(1000);
-
-  WiFi.begin(ssid, password);
-  WiFi.setSleep(false);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.print("Camera Ready! Use 'http://");
-  Serial.print(WiFi.localIP());
-  Serial.println("' to connect");
   
 
 }
 
 void loop() {
 
-  // Do nothing. Everything is done in another task by the web server
   
-  //proby czujnika odleglosci
-  if(isWaterLvlEnabled){
-    WiFi.disconnect(true);
+  // czujnik odleglosci
+  if (sec_since_measure >= 60){
+    check_water_level();
+    sec_since_measure = 0;
+  }
 
   
-   // value from sensor * (3.3/4096)  5/4096 = 0.001220703125
-  // int distance_cm = 29.988 * pow(volts, -1); // 0.173
-  // distance_cm = splawik.getDistance();
-
-  // distance_cm = map(analogRead(czujnik_IR), 0, 4095, 80, 10);
-  
-  // Serial.print("Distance (cm): ");
-  // Serial.println(distance_cm);
-
-  //czujnik temperatury
+  // czujnik temperatury
   sensors.requestTemperatures();
   float temperatureC = sensors.getTempCByIndex(0);
-  // Serial.println(temperatureC);
   updateTemp(temperatureC);
 
   // zarządzanie oświetleniem
-  int hour = printLocalTime();
+  int hour = getHour();
 
   check_lights(hour);
 
