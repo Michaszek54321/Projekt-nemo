@@ -33,7 +33,7 @@ void updateTemp(float temp);
 void updateLightState(int light_state);
 void updateHeaterState(int heater_state);
 void setupLedFlash(int pin);
-void updateWaterLevel(float level);
+void updateWaterLevel(int level);
 
 // oswietlenie
 #define LED_PIN     15
@@ -60,9 +60,14 @@ const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 3600;
 const int   daylightOffset_sec = 3600;
 
+// pomiar poziomu wody
+bool isWaterLvlEnabled = false;
+
+void updateWaterBool(bool state){
+  isWaterLvlEnabled = state;
+}
 
 // zmienne grzałki i oświetlenia
-
 int printLocalTime(){
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
@@ -163,6 +168,26 @@ void check_water_level(){
 
 }
 
+
+int convert_to_percentage(float volts) {
+  int percentage = 0;
+  
+  // TODO: dostosować te wartości trzeba
+  float MIN_VOLTS = 1100.0;
+  float MAX_VOLTS = 3900.0;
+
+  if (volts >= MAX_VOLTS) {
+    percentage = 100;
+  } 
+  else if (volts <= MIN_VOLTS) {
+    percentage = 0;
+  } 
+  else {
+    percentage = (int)((volts - MIN_VOLTS) / (MAX_VOLTS - MIN_VOLTS) * 100);
+  }
+
+  return percentage;
+}
 
 void setup() {
   Serial.begin(115200);
@@ -305,6 +330,8 @@ void loop() {
   // Do nothing. Everything is done in another task by the web server
   
   //proby czujnika odleglosci
+  if(isWaterLvlEnabled){
+    WiFi.disconnect(true);
 
   
    // value from sensor * (3.3/4096)  5/4096 = 0.001220703125
@@ -317,7 +344,6 @@ void loop() {
   // Serial.println(distance_cm);
 
   //czujnik temperatury
-  
   sensors.requestTemperatures();
   float temperatureC = sensors.getTempCByIndex(0);
   // Serial.println(temperatureC);
