@@ -40,7 +40,7 @@ void updateChartData(int data[], size_t incoming_size);
 // eeprom
 #define EEPROM_SIZE 24
 int godziny[EEPROM_SIZE];
-float avg_temp_list[10];;
+float avg_temp_list[10];
 
 // oswietlenie
 #define LED_PIN     15
@@ -197,14 +197,18 @@ void check_eeprom(){
       EEPROM.write(i, 0);
     }
     godziny[i] = EEPROM.read(i);
+    Serial.print("EEPROM hour ");
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.println(godziny[i]);
   }
   updateChartData(godziny, EEPROM_SIZE);
 }
 
-int avg_temp(int temps[], int size) {
+int avg_temp(float temps[], int size) {
     // liczy średnią z tablicy, ignorując wartości zerowe
-    int sum = 0;
-    for (int i = 0; i < size-1; i++) {
+    float sum = 0;
+    for (int i = 0; i < size; i++) {
         if (temps[i] != 0) { // Pomijamy wartości zerowe
             sum += temps[i];
         }
@@ -241,7 +245,6 @@ void setup() {
 
   // ustawienia oświetlenia
   FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, NUM_LEDS);
-
 
 
   camera_config_t config;
@@ -347,7 +350,11 @@ void setup() {
 
 void loop() {
 
-  
+  // zarządzanie oświetleniem
+  int hour = getHour();
+
+  check_lights(hour);
+
   // czujnik odleglosci
   if (sec_since_measure >= 60){
     check_water_level();
@@ -373,21 +380,15 @@ void loop() {
       }
       avg_temp_list[9] = temperatureC; // ostatnia pozycja na nową wartość
 
-      avg_in_hour = avg_temp(avg_temp_list, 10);
+      int avg_in_hour = avg_temp(avg_temp_list, 10);
+      add_eeprom(hour, avg_in_hour);      
   } else {
       avg_temp_list[count] = temperatureC;
   }
 
-
-
   updateTemp(temperatureC);
 
-  // zarządzanie oświetleniem
-  int hour = getHour();
-
-  check_lights(hour);
-
-
+  
   // zarządzanie grzałką
   check_temps(temperatureC);
 
