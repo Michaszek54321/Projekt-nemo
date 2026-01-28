@@ -33,7 +33,7 @@ void updateTemp(float temp);
 void updateLightState(int light_state);
 void updateHeaterState(int heater_state);
 void setupLedFlash(int pin);
-void updateWaterLevel(float level);
+void updateWaterLevel(int level);
 
 // oswietlenie
 #define LED_PIN     15
@@ -60,9 +60,14 @@ const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 3600;
 const int   daylightOffset_sec = 3600;
 
+// pomiar poziomu wody
+bool isWaterLvlEnabled = false;
+
+void updateWaterBool(bool state){
+  isWaterLvlEnabled = state;
+}
 
 // zmienne grzałki i oświetlenia
-
 int printLocalTime(){
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
@@ -137,6 +142,26 @@ void check_temps(float current_temp){
     updateHeaterState(0);
     delay(100);
   }
+}
+
+int convert_to_percentage(float volts) {
+  int percentage = 0;
+  
+  // TODO: dostosować te wartości trzeba
+  float MIN_VOLTS = 1100.0;
+  float MAX_VOLTS = 3900.0;
+
+  if (volts >= MAX_VOLTS) {
+    percentage = 100;
+  } 
+  else if (volts <= MIN_VOLTS) {
+    percentage = 0;
+  } 
+  else {
+    percentage = (int)((volts - MIN_VOLTS) / (MAX_VOLTS - MIN_VOLTS) * 100);
+  }
+
+  return percentage;
 }
 
 void setup() {
@@ -249,12 +274,6 @@ void setup() {
   Serial.println("' to connect");
 
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
-
-  WiFi.disconnect(true);
-  if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("WiFi disconnected hura");
-  }
-
 }
 
 void loop() {
@@ -262,20 +281,27 @@ void loop() {
   // Do nothing. Everything is done in another task by the web server
   
   //proby czujnika odleglosci
+  if(isWaterLvlEnabled){
+    WiFi.disconnect(true);
 
-  
-  float volts = analogRead(czujnik_IR) * (3.3/4096); // value from sensor * (3.3/4096)  5/4096 = 0.001220703125
-  // int distance_cm = 29.988 * pow(volts, -1); // 0.173
-  // distance_cm = splawik.getDistance();
+    if (WiFi.status() != WL_CONNECTED) {
+      Serial.println("WiFi disconnected hura");
 
-  // distance_cm = map(analogRead(czujnik_IR), 0, 4095, 80, 10);
-  Serial.print("Volts: ");
-  Serial.println(volts);
-  // Serial.print("Distance (cm): ");
-  // Serial.println(distance_cm);
+      // przeliczamy dystans/volty na %
+      float volts = analogRead(czujnik_IR) * (3.3/4096); // value from sensor * (3.3/4096)  5/4096 = 0.001220703125
+      int percentage = convert_to_percentage(volts);
+
+      updateWaterLevel(percentage);
+      delay(1000); // dla pewności że dane sie wysla
+    }
+    
+    WiFi.begin(ssid, password);
+    WiFi.setSleep(false);
+    Serial.println("WiFi reconnected!");
+    isWaterLvlEnabled = false;
+  }
 
   //czujnik temperatury
-  
   sensors.requestTemperatures();
   float temperatureC = sensors.getTempCByIndex(0);
   // Serial.println(temperatureC);
