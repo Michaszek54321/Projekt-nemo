@@ -25,8 +25,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char* ssid = "iPhone (Michał)"; // T-Mobile_Swiatlowod_3938
-const char* password = "lol12345"; // 00689644583091587728
+const char* ssid = "T-Mobile_Swiatlowod_3938"; // T-Mobile_Swiatlowod_3938; iPhone (Michał)
+const char* password = "00689644583091587728"; // 00689644583091587728; lol12345
 
 void startCameraServer();
 void updateTemp(float temp);
@@ -69,6 +69,7 @@ int printLocalTime(){
     Serial.println("Failed to obtain time");
     return -1;
   }
+  Serial.println("Git");
   return timeinfo.tm_hour;
 }
 
@@ -138,6 +139,30 @@ void check_temps(float current_temp){
     delay(100);
   }
 }
+
+void check_water_level(){
+  
+  WiFi.disconnect(true);
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("WiFi disconnected hura");
+
+    float volts = analogRead(czujnik_IR) * (3.3/4096);
+    Serial.print("Volts: ");
+    Serial.println(volts);
+    updateWaterLevel(volts);
+  }
+
+  WiFi.begin(ssid, password);
+  WiFi.setSleep(false);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
+
+}
+
 
 void setup() {
   Serial.begin(115200);
@@ -253,7 +278,25 @@ void setup() {
   WiFi.disconnect(true);
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("WiFi disconnected hura");
+
+    float volts = analogRead(czujnik_IR) * (3.3/4096);
+    Serial.print("Volts: ");
+    Serial.println(volts);
   }
+  delay(1000);
+
+  WiFi.begin(ssid, password);
+  WiFi.setSleep(false);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.print("Camera Ready! Use 'http://");
+  Serial.print(WiFi.localIP());
+  Serial.println("' to connect");
+  
 
 }
 
@@ -264,13 +307,12 @@ void loop() {
   //proby czujnika odleglosci
 
   
-  float volts = analogRead(czujnik_IR) * (3.3/4096); // value from sensor * (3.3/4096)  5/4096 = 0.001220703125
+   // value from sensor * (3.3/4096)  5/4096 = 0.001220703125
   // int distance_cm = 29.988 * pow(volts, -1); // 0.173
   // distance_cm = splawik.getDistance();
 
   // distance_cm = map(analogRead(czujnik_IR), 0, 4095, 80, 10);
-  Serial.print("Volts: ");
-  Serial.println(volts);
+  
   // Serial.print("Distance (cm): ");
   // Serial.println(distance_cm);
 
