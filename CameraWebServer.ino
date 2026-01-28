@@ -5,6 +5,7 @@
 //#include <SharpIR.h>
 #include "time.h"
 #include <FastLED.h>
+#include <EEPROM.h>
 
 //
 // WARNING!!! PSRAM IC required for UXGA resolution and high JPEG quality
@@ -34,6 +35,10 @@ void updateLightState(int light_state);
 void updateHeaterState(int heater_state);
 void setupLedFlash(int pin);
 void updateWaterLevel(int level);
+
+// eeprom
+#define EEPROM_SIZE 52
+
 
 // oswietlenie
 #define LED_PIN     15
@@ -188,7 +193,24 @@ int convert_to_percentage(float volts) {
   return percentage;
 }
 
+void check_eeprom(){
+  int rozmiar_ee = EEPROM.length();
+  int godziny[rozmiar_ee/2];
+  int temperatury[rozmiar_ee/2];
+  for (int i = 0; i < rozmiar_ee; i++) {
+    godziny[i] = EEPROM.read(i);
+    Serial.print("EEPROM[");
+    Serial.print(i);
+    Serial.print("]: ");
+    Serial.println(godziny[i]);
+  }
+}
+
 void setup() {
+  // eeprom begin
+  EEPROM.begin(EEPROM_SIZE);
+
+  // serial begin
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
@@ -304,7 +326,8 @@ void setup() {
   Serial.println("' to connect");
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   
-
+  check_eeprom();
+  // dzień w ostatniej komurce eepromu
 }
 
 void loop() {
@@ -320,6 +343,9 @@ void loop() {
   // czujnik temperatury
   sensors.requestTemperatures();
   float temperatureC = sensors.getTempCByIndex(0);
+  // liczymy średnią na podstawie poprzednich
+  // ostatnią komurke eepromu nadpisujemy średnią temperaturą
+
   updateTemp(temperatureC);
 
   // zarządzanie oświetleniem
@@ -332,5 +358,6 @@ void loop() {
   check_temps(temperatureC);
 
   sec_since_measure += 1;
+
   delay(1000);
 }
