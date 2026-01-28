@@ -706,6 +706,8 @@
               const temperatures = data.temp_data;
 
               const hours = temperatures.map((_, index) => `${index}:00`);
+              console.log("Godziny:", hours);
+              console.log("Temperatury:", temperatures);
 
               myChart.data.labels = hours;
               myChart.data.datasets[0].data = temperatures;
