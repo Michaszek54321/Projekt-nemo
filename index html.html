@@ -634,7 +634,7 @@
           fetch(`${baseHost}/status_sensor`)
             .then((response) => {
               if (!response.ok) throw new Error("Błąd sieci!!!!");
-              response.json();
+              return response.json();
             })
             .then((data) => {
               overlay.style.display = "none";
