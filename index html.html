@@ -743,6 +743,10 @@
             },
           },
         });
+
+        fetchChartData();
+        setInterval(fetchChartData, 1800000); // co 30 minut
+
       });
     </script>
   </body>
