@@ -35,10 +35,12 @@ void updateLightState(int light_state);
 void updateHeaterState(int heater_state);
 void setupLedFlash(int pin);
 void updateWaterLevel(int level);
+void updateChartData(int data[], size_t incoming_size);
 
 // eeprom
-#define EEPROM_SIZE 52
-
+#define EEPROM_SIZE 24
+int godziny[EEPROM_SIZE];
+float avg_temp_list[10];;
 
 // oswietlenie
 #define LED_PIN     15
@@ -195,15 +197,28 @@ int convert_to_percentage(float volts) {
 
 void check_eeprom(){
   int rozmiar_ee = EEPROM.length();
-  int godziny[rozmiar_ee/2];
-  int temperatury[rozmiar_ee/2];
   for (int i = 0; i < rozmiar_ee; i++) {
+    if (EEPROM.read(i) == 255){
+      EEPROM.write(i, 0);
+    }
     godziny[i] = EEPROM.read(i);
-    Serial.print("EEPROM[");
-    Serial.print(i);
-    Serial.print("]: ");
-    Serial.println(godziny[i]);
   }
+  updateChartData(godziny, EEPROM_SIZE);
+}
+
+int avg_temp(int temps[], int size) {
+    int sum = 0;
+    for (int i = 0; i < size-1; i++) {
+        if (temps[i] != 0) { // Pomijamy wartości zerowe
+            sum += temps[i];
+        }
+    }
+    return int(sum / size);
+}
+
+void add_eeprom(int hour, int temp){
+  EEPROM.write(hour, temp);
+  EEPROM.commit();
 }
 
 void setup() {
@@ -327,6 +342,7 @@ void setup() {
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   
   check_eeprom();
+  Serial.println("EEPROM check done");
   // dzień w ostatniej komurce eepromu
 }
 
@@ -340,11 +356,33 @@ void loop() {
   }
 
   
+
+  
   // czujnik temperatury
   sensors.requestTemperatures();
   float temperatureC = sensors.getTempCByIndex(0);
-  // liczymy średnią na podstawie poprzednich
-  // ostatnią komurke eepromu nadpisujemy średnią temperaturą
+  int count = 0;
+  for (int i = 0; i < 10; i++) {
+      if (avg_temp_list[i] != 0) {
+          count++;
+      }
+      else {
+          break;
+      }
+  }
+  if (count >= 10) {
+      // przesuwamy wartości w lewo
+      for (int i = 1; i < 10; i++) {
+          avg_temp_list[i - 1] = avg_temp_list[i];
+      }
+      avg_temp_list[9] = temperatureC; // ostatnia pozycja na nową wartość
+
+      avg_in_hour = avg_temp(avg_temp_list, 10);
+  } else {
+      avg_temp_list[count] = temperatureC;
+  }
+
+
 
   updateTemp(temperatureC);
 
