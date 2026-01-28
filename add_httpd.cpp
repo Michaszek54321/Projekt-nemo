@@ -1067,6 +1067,7 @@ static esp_err_t check_water_lvl_handler(httpd_req_t *req){
     *p++ = '{';
 
     p += sprintf(p, "\"water_level\":%.1f", water_level);
+    p += sprintf(p, "\"water_level\":%.1f", water_level);
 
     *p++ = '}';
     *p++ = 0;
