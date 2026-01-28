@@ -30,6 +30,8 @@ int light_off = 22;
 float heat_min = 24.0;
 float heat_max = 25.5;
 
+int temp_data[48];
+
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
 #endif
@@ -1028,6 +1030,27 @@ static esp_err_t status_handler(httpd_req_t *req)
     return httpd_resp_send(req, json_response, strlen(json_response));
 }
 
+static esp_err_t chart_data_handler(httpd_req_t *req)
+{
+    char part[16];
+
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
+
+    httpd_resp_send_chunk(req, "{\"temp_data\":[", -1);
+
+    for (int i = 0; i < 48; i++) {
+        int len = sprintf(part, "%d%s", temp_data[i], (i < 47) ? "," : "");
+        
+        if (httpd_resp_send_chunk(req, part, len) != ESP_OK) {
+            return ESP_FAIL; 
+        }
+    }
+
+    httpd_resp_send_chunk(req, "]}", -1);
+    return httpd_resp_send_chunk(req, NULL, 0);
+}
+
 static esp_err_t status_sensors_handler(httpd_req_t *req)
 {
     static char json_response[1024];
@@ -1354,6 +1377,19 @@ void startCameraServer()
 #endif
     };
 
+    httpd_uri_t chart_data_uri = {
+        .uri = "/chart_data",
+        .method = HTTP_GET,
+        .handler = chart_data_handler,
+        .user_ctx = NULL
+#ifdef CONFIG_HTTPD_WS_SUPPORT
+        ,
+        .is_websocket = true,
+        .handle_ws_control_frames = false,
+        .supported_subprotocol = NULL
+#endif
+    };
+
     httpd_uri_t save_sensor_uri = {
         .uri = "/save_sensor",
         .method = HTTP_GET,
@@ -1538,6 +1574,7 @@ void startCameraServer()
         httpd_register_uri_handler(camera_httpd, &save_sensor_uri);
         httpd_register_uri_handler(camera_httpd, &check_water_uri);
         httpd_register_uri_handler(camera_httpd, &led_light_mode_uri);
+        httpd_register_uri_handler(camera_httpd, &chart_data_uri);
     }
 
     config.server_port += 1;
@@ -1573,4 +1610,14 @@ void updateHeaterState(int heater_state){
 
 void updateWaterLevel(int level){
     water_level = level;
+}
+
+void updateChartData(int data[], size_t incoming_size) {
+    size_t elements_to_copy = (incoming_size < 48) ? incoming_size : 48;
+
+    memcpy(temp_data, data, elements_to_copy * sizeof(int));
+
+    if (elements_to_copy < 48) {
+        memset(temp_data + elements_to_copy, 0, (48 - elements_to_copy) * sizeof(int));
+    }
 }
