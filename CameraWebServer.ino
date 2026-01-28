@@ -57,9 +57,8 @@ DallasTemperature sensors (&oneWire);
 
 #define czujnik_IR 13
 int sec_since_measure = 0;
-// SharpIR splawik(1080, 13);
-// SharpIR splawik = SharpIR(13, 1080);
 
+// przekaźnik grzałka
 #define przekaznik_grzalka 14
 
 // czas
@@ -67,14 +66,6 @@ const char* ntpServer = "pool.ntp.org";
 const long  gmtOffset_sec = 3600;
 const int   daylightOffset_sec = 3600;
 
-// pomiar poziomu wody
-bool isWaterLvlEnabled = false;
-
-void updateWaterBool(bool state){
-  isWaterLvlEnabled = state;
-}
-
-// zmienne grzałki i oświetlenia
 int getHour(){
   struct tm timeinfo;
   if(!getLocalTime(&timeinfo)){
@@ -84,6 +75,9 @@ int getHour(){
   return timeinfo.tm_hour;
 }
 
+
+
+// zmienne grzałki i oświetlenia
 int g_light_on = 8;
 int g_light_off = 22;
 float g_heat_min = 24.0;
@@ -196,6 +190,7 @@ int convert_to_percentage(float volts) {
 }
 
 void check_eeprom(){
+  // sprawdz czy w eepromie sa jakies dane, jesli nie to zapelnij zerami
   int rozmiar_ee = EEPROM.length();
   for (int i = 0; i < rozmiar_ee; i++) {
     if (EEPROM.read(i) == 255){
@@ -207,6 +202,7 @@ void check_eeprom(){
 }
 
 int avg_temp(int temps[], int size) {
+    // liczy średnią z tablicy, ignorując wartości zerowe
     int sum = 0;
     for (int i = 0; i < size-1; i++) {
         if (temps[i] != 0) { // Pomijamy wartości zerowe
@@ -217,8 +213,11 @@ int avg_temp(int temps[], int size) {
 }
 
 void add_eeprom(int hour, int temp){
+  // zapisz do eeprom a następnie do tablicy i zaktualizuj dane wykresu
   EEPROM.write(hour, temp);
   EEPROM.commit();
+  godziny[hour] = temp;
+  updateChartData(godziny, EEPROM_SIZE);
 }
 
 void setup() {
@@ -354,9 +353,6 @@ void loop() {
     check_water_level();
     sec_since_measure = 0;
   }
-
-  
-
   
   // czujnik temperatury
   sensors.requestTemperatures();
