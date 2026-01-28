@@ -172,8 +172,8 @@ int convert_to_percentage(float volts) {
   int percentage = 0;
   
   // TODO: dostosować te wartości trzeba
-  float MIN_VOLTS = 1100.0;
-  float MAX_VOLTS = 3900.0;
+  float MIN_VOLTS = 1.2;
+  float MAX_VOLTS = 3.3;
 
   if (volts >= MAX_VOLTS) {
     percentage = 100;
