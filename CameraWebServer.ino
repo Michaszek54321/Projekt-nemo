@@ -220,7 +220,11 @@ int convert_to_percentage(float volts) {
     percentage = 50;
   } 
   else {
-    percentage = (int)((volts - MIN_VOLTS) / (MAX_VOLTS - MIN_VOLTS) * 100);
+    // mapuj liniowo z zakresu [MIN_VOLTS, MAX_VOLTS] na [50,100]
+    float ratio = (volts - MIN_VOLTS) / (MAX_VOLTS - MIN_VOLTS);
+    percentage = 50 + (int)(ratio * 50);
+    if (percentage > 100) percentage = 100;
+    if (percentage < 50) percentage = 50;
   }
 
   return percentage;
