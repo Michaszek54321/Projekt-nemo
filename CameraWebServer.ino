@@ -163,7 +163,7 @@ void insertionSort(float arr[], int n)
 
 void check_water_level(){
   
-  // WiFi.disconnect(true);
+  WiFi.disconnect(true);
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("WiFi disconnected hura");
     float mean_volts[6];
@@ -178,11 +178,6 @@ void check_water_level(){
       delay(1000);
     }
 
-    for (int i = 0; i < 6; ++i){
-        Serial.print(mean_volts[i]);
-        Serial.print(", ");
-    }
-    Serial.println();
 
     insertionSort(mean_volts, 6);
     int level = convert_to_percentage((mean_volts[2]+mean_volts[3])/2);
@@ -195,15 +190,15 @@ void check_water_level(){
 
   }
 
-  // WiFi.begin(ssid, password);
-  // WiFi.setSleep(false);
-  // while (WiFi.status() != WL_CONNECTED) {
-  //   delay(500);
-  //   Serial.print(".");
-  // }
-  // Serial.println("");
-  // Serial.println("WiFi connected");
-  // configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  WiFi.begin(ssid, password);
+  WiFi.setSleep(false);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 }
 
 int convert_to_percentage(float volts) {
@@ -284,7 +279,6 @@ void setup() {
   digitalWrite(przekaznik_grzalka, HIGH); //wylacz grzałkę na start
 
   // proby czujnika odleglosci
-  // SharpIR splawik = SharpIR(13, 1080);
   pinMode(czujnik_IR, INPUT);
 
   // ustawienia oświetlenia
@@ -367,25 +361,25 @@ void setup() {
   float volts = analogRead(czujnik_IR) * (3.3/4096);
   Serial.print("Volts: ");
   Serial.println(volts);
-  // int level = convert_to_percentage(volts);
-  // updateWaterLevel(level);
+  int level = convert_to_percentage(volts);
+  updateWaterLevel(level);
 
-  // WiFi.begin(ssid, password);
-  // WiFi.setSleep(false);
+  WiFi.begin(ssid, password);
+  WiFi.setSleep(false);
 
-  // while (WiFi.status() != WL_CONNECTED) {
-  //   delay(500);
-  //   Serial.print(".");
-  // }
-  // Serial.println("");
-  // Serial.println("WiFi connected");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
 
-  // startCameraServer();
+  startCameraServer();
 
-  // Serial.print("Camera Ready! Use 'http://");
-  // Serial.print(WiFi.localIP());
-  // Serial.println("' to connect");
-  // configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  Serial.print("Camera Ready! Use 'http://");
+  Serial.print(WiFi.localIP());
+  Serial.println("' to connect");
+  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   
   check_eeprom();
   Serial.println("EEPROM check done");
@@ -395,50 +389,50 @@ void setup() {
 void loop() {
 
   // zarządzanie oświetleniem
-  // int hour = getHour();
+  int hour = getHour();
 
-  // check_lights(hour);
+  check_lights(hour);
 
-  // // czujnik odleglosci
-  // if (sec_since_measure >= 60){
-  //   check_water_level();
-  //   sec_since_measure = 0;
-  // }
+  // czujnik odleglosci
+  if (sec_since_measure >= 30){
+    check_water_level();
+    sec_since_measure = 0;
+  }
   
-  // // czujnik temperatury
-  // sensors.requestTemperatures();
-  // float temperatureC = sensors.getTempCByIndex(0);
-  // int count = 0;
-  // for (int i = 0; i < 10; i++) {
-  //     if (avg_temp_list[i] != 0) {
-  //         count++;
-  //     }
-  //     else {
-  //         break;
-  //     }
-  // }
-  // if (count >= 10) {
-  //     // przesuwamy wartości w lewo
-  //     for (int i = 1; i < 10; i++) {
-  //         avg_temp_list[i - 1] = avg_temp_list[i];
-  //     }
-  //     avg_temp_list[9] = temperatureC; // ostatnia pozycja na nową wartość
+  // czujnik temperatury
+  sensors.requestTemperatures();
+  float temperatureC = sensors.getTempCByIndex(0);
+  int count = 0;
+  for (int i = 0; i < 10; i++) {
+      if (avg_temp_list[i] != 0) {
+          count++;
+      }
+      else {
+          break;
+      }
+  }
+  if (count >= 10) {
+      // przesuwamy wartości w lewo
+      for (int i = 1; i < 10; i++) {
+          avg_temp_list[i - 1] = avg_temp_list[i];
+      }
+      avg_temp_list[9] = temperatureC; // ostatnia pozycja na nową wartość
 
-  //     int avg_in_hour = avg_temp(avg_temp_list, 10);
-  //     add_eeprom(hour, avg_in_hour);      
-  // } else {
-  //     avg_temp_list[count] = temperatureC;
-  // }
+      int avg_in_hour = avg_temp(avg_temp_list, 10);
+      add_eeprom(hour, avg_in_hour);      
+  } else {
+      avg_temp_list[count] = temperatureC;
+  }
 
-  // updateTemp(temperatureC);
+  updateTemp(temperatureC);
 
   
-  // // zarządzanie grzałką
-  // check_temps(temperatureC);
+  // zarządzanie grzałką
+  check_temps(temperatureC);
 
-  // sec_since_measure += 1;
+  sec_since_measure += 1;
 
-  check_water_level();
+  // check_water_level();
   
   // float volts = analogRead(czujnik_IR) * (3.3/4096);
   // Serial.print("Volts: ");
