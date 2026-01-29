@@ -148,28 +148,62 @@ void check_temps(float current_temp){
   }
 }
 
+void insertionSort(float arr[], int n)
+{
+    for (int i = 1; i < n; ++i) {
+        float key = arr[i];
+        int j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j = j - 1;
+        }
+        arr[j + 1] = key;
+    }
+}
+
 void check_water_level(){
   
-  WiFi.disconnect(true);
+  // WiFi.disconnect(true);
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("WiFi disconnected hura");
+    float mean_volts[6];
+    for(int i=0; i<6; i++){
+      
+      float volts = analogRead(czujnik_IR) * (3.3/4096);
+      Serial.print("Volts: ");
+      Serial.println(volts);
 
-    float volts = analogRead(czujnik_IR) * (3.3/4096);
-    Serial.print("Volts: ");
-    Serial.println(volts);
-    int level = convert_to_percentage(volts);
+      mean_volts[i] = volts;
+
+      delay(1000);
+    }
+
+    for (int i = 0; i < 6; ++i){
+        Serial.print(mean_volts[i]);
+        Serial.print(", ");
+    }
+    Serial.println();
+
+    insertionSort(mean_volts, 6);
+    int level = convert_to_percentage((mean_volts[2]+mean_volts[3])/2);
+    Serial.print("Mean Volts: ");
+    Serial.println((mean_volts[2]+mean_volts[3])/2);
+    Serial.print("Water level: ");
+    Serial.println(level);
+
     updateWaterLevel(level);
+
   }
 
-  WiFi.begin(ssid, password);
-  WiFi.setSleep(false);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi connected");
-  configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
+  // WiFi.begin(ssid, password);
+  // WiFi.setSleep(false);
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   delay(500);
+  //   Serial.print(".");
+  // }
+  // Serial.println("");
+  // Serial.println("WiFi connected");
+  // configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 }
 
 int convert_to_percentage(float volts) {
@@ -183,7 +217,7 @@ int convert_to_percentage(float volts) {
     percentage = 100;
   } 
   else if (volts <= MIN_VOLTS) {
-    percentage = 0;
+    percentage = 50;
   } 
   else {
     percentage = (int)((volts - MIN_VOLTS) / (MAX_VOLTS - MIN_VOLTS) * 100);
@@ -329,8 +363,8 @@ void setup() {
   float volts = analogRead(czujnik_IR) * (3.3/4096);
   Serial.print("Volts: ");
   Serial.println(volts);
-  int level = convert_to_percentage(volts);
-  updateWaterLevel(level);
+  // int level = convert_to_percentage(volts);
+  // updateWaterLevel(level);
 
   // WiFi.begin(ssid, password);
   // WiFi.setSleep(false);
@@ -400,12 +434,11 @@ void loop() {
 
   // sec_since_measure += 1;
 
+  check_water_level();
   
-  volts = analogRead(czujnik_IR) * (3.3/4096);
-  Serial.print("Volts: ");
-  Serial.println(volts);
-  int level = convert_to_percentage(volts);
-  updateWaterLevel(level);
+  // float volts = analogRead(czujnik_IR) * (3.3/4096);
+  // Serial.print("Volts: ");
+  // Serial.println(volts);
 
   delay(1000);
 }
