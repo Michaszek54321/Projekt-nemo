@@ -26,8 +26,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char* ssid = "T-Mobile_Swiatlowod_3938"; // T-Mobile_Swiatlowod_3938; iPhone (Michał)
-const char* password = "00689644583091587728"; // 00689644583091587728; lol12345
+const char* ssid = "iPhone (Michał)"; // T-Mobile_Swiatlowod_3938; iPhone (Michał)
+const char* password = "lol12345"; // 00689644583091587728; lol12345
 
 void startCameraServer();
 void updateTemp(float temp);
@@ -36,6 +36,7 @@ void updateHeaterState(int heater_state);
 void setupLedFlash(int pin);
 void updateWaterLevel(int level);
 void updateChartData(int data[], size_t incoming_size);
+void set_eeprom_params(int l_on, int l_off);
 
 // eeprom
 #define EEPROM_SIZE 26
@@ -56,7 +57,7 @@ DallasTemperature sensors (&oneWire);
 
 //proby czujnika odleglosci
 
-#define czujnik_IR 13
+#define czujnik_IR 12
 int sec_since_measure = 0;
 
 // przekaźnik grzałka
@@ -164,6 +165,7 @@ void insertionSort(float arr[], int n)
 void check_water_level(){
   
   WiFi.disconnect(true);
+  delay(1000);
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("WiFi disconnected hura");
     float mean_volts[6];
@@ -242,6 +244,7 @@ void check_eeprom(){
 
   g_light_on = EEPROM.read(24);
   g_light_off = EEPROM.read(25);
+  set_eeprom_params(g_light_on, g_light_off);
 }
 
 int avg_temp(float temps[], int size) {
@@ -357,7 +360,11 @@ void setup() {
 #if defined(LED_GPIO_NUM)
   setupLedFlash(LED_GPIO_NUM);
 #endif
-  
+
+  check_eeprom();
+  Serial.println("EEPROM check done");
+
+  delay(200);
   float volts = analogRead(czujnik_IR) * (3.3/4096);
   Serial.print("Volts: ");
   Serial.println(volts);
@@ -381,9 +388,7 @@ void setup() {
   Serial.println("' to connect");
   configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
   
-  check_eeprom();
-  Serial.println("EEPROM check done");
-  // dzień w ostatniej komurce eepromu
+  
 }
 
 void loop() {

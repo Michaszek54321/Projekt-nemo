@@ -1119,6 +1119,11 @@ static esp_err_t led_light_mode_handler(httpd_req_t *req){
 }
 
 void set_params(int l_on, int l_off, float h_min, float h_max);
+void set_eeprom_params(int l_on, int l_off){
+    light_on = l_on;
+    light_off = l_off;
+}
+
 
 static esp_err_t save_sensor_handler(httpd_req_t *req)
 {
